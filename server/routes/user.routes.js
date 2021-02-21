@@ -1,32 +1,16 @@
 const express = require("express");
-const validator = require("validator");
 const router = express.Router();
 
-const User = require("./../models/user.models");
-const { signaccesstoken } = require("./../helpers/jwt.helpers");
-const Vendor = require("../models/vendor.models");
-const {usersignup,updatepassword, usersignin, givereview} = require("./../controllers/user.controller");
-//creating a new user
-router.post("/signup", usersignup);
+const { verifyaccesstoken } = require("./../helpers/jwt.helpers");
 
-//existing user to signin
-router.post("/signin", usersignin);
+const usersController = require("../../controllers/users.controller");
+const validator = require("express-validation");
+const { update } = require("../../validations/user.validation");
+const { userId } = require("../../validations/common.validation");
 
-router.patch("/updatepassword",updatepassword);
-
-// router.patch("/updatedetail", async (req, res, next) => {
-// 	console.log("this 1 is triggred");
-// 	let { email, newemail } = req.body;
-
-// 	const result = await User.findOne({ email: email });
-// 	if (!result) res.send("enter valid email");
-// 	result.email = newemail;
-// 	const result2 = await result.save();
-// 	res.send(result2);
-// });
-
-router.post("/:id/reviews", givereview);
-
-router.post('/upload/')
+router.get("/", verifyaccesstoken, usersController.getAll);
+router.get("/:userId", verifyaccesstoken, validator(userId), usersController.getOne);
+router.put("/:userId", verifyaccesstoken, validator(userId), validator(update), usersController.putOne);
+router.delete("/:userId", verifyaccesstoken, validator(userId), usersController.deleteOne);
 
 module.exports = router;

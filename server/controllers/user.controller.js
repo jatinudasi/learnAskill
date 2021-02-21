@@ -2,103 +2,93 @@ const validator = require("validator");
 const User = require("./../models/user.models");
 const { signaccesstoken } = require("./../helpers/jwt.helpers");
 
-exports.usersignup= async (req, res, next) => {
+const httpStatus = require("http-status");
+const mongoose = require("mongoose");
+const APIError = require("../utils/APIError");
+const Recruiter = require("../models/recruiter.model");
+const Applicant = require("../models/applicant.model");
+
+exports.getAll = async (req, res, next) => {
 	try {
-		console.log(req.body);
-
-		let { email, password, mobile } = req.body;
-
-		if (!email || !password || !mobile) throw new Error("please enter emailid and password");
-		if (!validator.isEmail(email) || !validator.isMobilePhone(mobile, "en-IN")) throw new Error("enter a valid email and valid phone number");
-
-		let duplicateemail = await User.findOne({ email: email });
-		let phonenumber = await User.findOne({ mobile: mobile });
-
-		if (duplicateemail || phonenumber) throw new Error("please enter unique email and phone number");
-
-		let user = await new User({ email, password, mobile });
-		 await user.save();
-		const token = await signaccesstoken(user.id,user.email);
-		
-		res.status(201).send({ token: token, saveduser:user });
+		// console.log('\n\n\n', req.user.role, '\n\n\n')
+		const response = { payLoad: {} };
+		const recruiter = await Recruiter.find().exec();
+		const applicant = await Applicant.find().exec();
+		response.payLoad = { applicant, recruiter };
+		res.status(httpStatus.OK);
+		res.send(response);
 	} catch (error) {
 		next(error);
 	}
-}
+};
 
-
-exports.usersignin = async (req, res, next) => {
-	// res.send("good");
+exports.getOne = async (req, res, next) => {
 	try {
-		let { email, password } = req.body;
-		if (!email || !password) throw new Error("please enter emailid and password");
-
-		let usersearchbyemail = await User.findOne({ email: email });
-		let usersearchbymobile = await User.findOne({ mobile: email });
-		//user can login by both email and phone number
-		if (!usersearchbyemail && !usersearchbymobile) throw new Error("enter valid email password");
-
-		let userexist = usersearchbyemail || usersearchbymobile;
-		let result = await userexist.isvalid(password);
-		if (!result) throw new Error("enter valid email password");
-
-		const token = await signaccesstoken(userexist.id, userexist.email, saveduser.mobile);
-
-		res.status(200).send({ success: token });
+		if (!mongoose.Types.ObjectId.isValid(req.params.userId)) throw new APIError(`Invalid userId`, httpStatus.BAD_REQUEST);
+		const response = { payLoad: {} };
+		let user = await Applicant.findOne({ id: req.params.userId }).exec();
+		if (!user) {
+			user = await Recruiter.findOne({ id: req.params.userId }).exec();
+			response.payLoad.role = "recruiter";
+		} else {
+			response.payLoad.role = "applicant";
+		}
+		response.payLoad.user = user;
+		res.status(httpStatus.OK);
+		res.send(response);
 	} catch (error) {
 		next(error);
 	}
-}
+};
 
-
-exports.updatepassword = async (req, res, next) => {
-	let { email, password, newpassword } = req.body;
-	if (!email || !password || !newpassword) {
-		res.json({ error: "plese enter all the fields" });
-	}
-
+exports.putOne = async (req, res, next) => {
 	try {
-		let userexist = await User.findOne({ email: email });
-		if (!userexist) res.json({ error: "enter valid email password" });
-
-		let result = await userexist.isvalid(password);
-
-		if (!result) res.json({ error: "invalid credentials" });
-
-		userexist.password = newpassword;
-		await userexist.save();
-		res.json({ success: "password updated" });
+		if (!mongoose.Types.ObjectId.isValid(req.params.userId)) throw new APIError(`Invalid userId`, httpStatus.BAD_REQUEST);
+		const userId = req.params.userId;
+		const response = { payLoad: {}, message: "" };
+		const userAccount = await User.findById(userId).exec();
+		if (!userAccount) throw new APIError(`No user associated with id: ${userId}`, httpStatus.NOT_FOUND);
+		const role = userAccount.role;
+		const user = role === "applicant" ? Applicant : Recruiter;
+		let userDetails = await user.findOne({ id: userId }).exec();
+		for (const key in req.body) {
+			if (user.schema.obj.hasOwnProperty(key) && key !== "id" && key !== "_id") {
+				userDetails[key] = req.body[key];
+			}
+		}
+		const updatedUserDetails = await userDetails.save();
+		if (updatedUserDetails) {
+			response.message = "SUCCESS";
+			response.payLoad = updatedUserDetails;
+			res.status(httpStatus.OK);
+			res.send(response);
+		} else {
+			throw new APIError(`User with id: ${userId} not updated`, httpStatus.NOT_FOUND);
+		}
 	} catch (error) {
 		next(error);
 	}
-}
+};
 
-
-exports.givereview =async (req, res,next) => {
+exports.deleteOne = async (req, res, next) => {
 	try {
-		const vendor = await Vendor.findById(req.params.id);
-		if (!vendor) 
-		throw new Error("vendor Not Found");
-
-			const review = {
-				name: req.body.name,
-				rating: Number(req.body.rating),
-				comment: req.body.comment,
-			};
-			vendor.reviews.push(review);
-			vendor.numReviews = vendor.reviews.length;
-			vendor.rating = vendor.reviews.reduce((a, c) => c.rating + a, 0) / vendor.reviews.length;
-			const updatedvendor = await vendor.save();
-			res.status(201).send({
-				data: updatedvendor.reviews[updatedvendor.reviews.length - 1],
-				message: "Review saved successfully.",
-			});
-	
-		
+		if (!mongoose.Types.ObjectId.isValid(req.params.userId)) throw new APIError(`Invalid userId`, httpStatus.BAD_REQUEST);
+		const userId = req.params.userId;
+		const response = { payLoad: {}, message: "" };
+		const userAccount = await User.findById(userId).exec();
+		if (!userAccount) throw new APIError(`No user associated with id: ${userId}`, httpStatus.NOT_FOUND);
+		const role = userAccount.role;
+		const user = role === "applicant" ? Applicant : Recruiter;
+		const deleteAccount = await User.findByIdAndDelete(userId).exec();
+		const deleteResult = await user.findOneAndDelete({ id: userId }).exec();
+		if (deleteAccount && deleteResult) {
+			response.message = "SUCCESS";
+			res.status(httpStatus.OK);
+			res.send(response);
+		} else {
+			throw new APIError(`User with id: ${userId} not deleted`, httpStatus.NOT_FOUND);
+		}
 	} catch (error) {
-
 		next(error);
-		
 	}
-	
-}
+};

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Vendor = require("../models/vendor.models");
+const Vendor = require("../models/recruiter.models");
 
 router.post("/:id", async (req, res) => {
 	const vendor = await Vendor.findById(req.params.id);
