@@ -5,7 +5,7 @@ const { signaccesstoken } = require("./../helpers/jwt.helpers");
 const httpStatus = require("http-status");
 const mongoose = require("mongoose");
 const APIError = require("../utils/APIError");
-const Recruiter = require("../models/recruiter.model");
+const Recruiter = require("../models/recruiter.models");
 const Applicant = require("../models/applicant.model");
 
 exports.getAll = async (req, res, next) => {
@@ -16,7 +16,7 @@ exports.getAll = async (req, res, next) => {
 		const applicant = await Applicant.find().exec();
 		response.payLoad = { applicant, recruiter };
 		res.status(httpStatus.OK);
-		res.send(response);
+		res.send(response); 
 	} catch (error) {
 		next(error);
 	}
