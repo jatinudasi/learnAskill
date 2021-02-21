@@ -1,39 +1,51 @@
-const User = require("../models/user.models");
+
 const Recruiter = require("../models/recruiter.models");
 const Applicant = require("../models/applicant.model");
 const jwt = require("jsonwebtoken");
 const httpStatus = require("http-status");
 
-exports.register = async (req, res, next) => {
-	try {
-		const userData = req.body;
-		const user = new User(userData);
-		const savedUser = await user.save();
-		userData.id = savedUser.id;
-		const userDetails = savedUser.role === "applicant" ? new Applicant(userData) : new Recruiter(userData);
-		const savedUserDetails = await userDetails.save();
-		const response = {
-			account: savedUser.transform(),
-			details: savedUserDetails.transform(),
-		};
-		let duplicateemail = await User.findOne({ email: email });
-		let phonenumber = await User.findOne({ mobile: mobile });
-		if (duplicateemail || phonenumber) res.json({ error: "please enter unique email or phone number" });
+const validator = require("validator");
+const {signaccesstoken} = require("./../helpers/jwt.helpers")
 
-		res.send({ token: token, saveduser: saveduser });
-		res.status(httpStatus.CREATED);
-		res.send(response);
+exports.recruitersignup = async (req, res, next) => {
+	try {
+		let { email, password, mobile } = req.body;
+
+		if (!email || !password || !mobile) throw new Error("please enter emailid and password");
+		if (!validator.isEmail(email) || !validator.isMobilePhone(mobile, "en-IN")) throw new Error("enter a valid email and valid phone number");
+
+		let duplicateemail = await Recruiter.findOne({ email: email });
+		let phonenumber = await Recruiter.findOne({ mobile: mobile });
+
+		if (duplicateemail || phonenumber) throw new Error("please enter unique email and phone number");
+
+		let recruiter = await new Recruiter({ email, password, mobile });
+		 await recruiter.save();
+		const token = await signaccesstoken(recruiter.id,recruiter.email,recruiter.mobile);
+		
+		res.status(201).send({ token: token, saveduser:recruiter });
 	} catch (error) {
-		return next(error);
+		next(error);
 	}
 };
 
-exports.login = async (req, res, next) => {
+exports.recruiterlogin = async (req, res, next) => {
 	try {
-		const user = await User.findAndGenerateToken(req.body);
-		const payload = { sub: user.id, role: user.role };
-		const token = jwt.sign(payload, "learnaskillwebapp");
-		return res.json({ message: "OK", token: token });
+		let { email, password } = req.body;
+		if (!email || !password) throw new Error("please enter emailid and password");
+
+		let usersearchbyemail = await Recruiter.findOne({ email: email });
+		let usersearchbymobile = await Recruiter.findOne({ mobile: email });
+		//user can login by both email and phone number
+		if (!usersearchbyemail && !usersearchbymobile) throw new Error("enter valid email password");
+
+		let userexist = usersearchbyemail || usersearchbymobile;
+		let result = await userexist.isvalid(password);
+		if (!result) throw new Error("enter valid email password");
+
+		const token = await signaccesstoken(userexist.id, userexist.email, saveduser.mobile);
+
+		res.status(200).send({ success: token });
 	} catch (error) {
 		next(error);
 	}
