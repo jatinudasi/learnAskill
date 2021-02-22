@@ -1,29 +1,32 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 const bcrypt = require("bcryptjs");
 
-const recruiterSchema = new Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    match: /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/,
-  },
-  password: {
-    type: String,
-    required: true,
-    minLength: 5,
-    maxlength: 128,
-  },
-  mobile: {
-    type: String,
-    trim: true,
-    unique: true,
-  }
-}, {
-  timestamps: true
-});
+const recruiterSchema = new Schema(
+	{
+		email: {
+			type: String,
+			required: true,
+			unique: true,
+			lowercase: true,
+			match: /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/,
+		},
+		password: {
+			type: String,
+			required: true,
+			minLength: 5,
+			maxlength: 128,
+		},
+		mobile: {
+			type: String,
+			trim: true,
+			unique: true,
+		},
+	},
+	{
+		timestamps: true,
+	}
+);
 
 recruiterSchema.pre("save", async function (next) {
 	try {
@@ -50,5 +53,4 @@ recruiterSchema.methods.isvalid = async function (password) {
 	return 0;
 };
 
-
-module.exports = mongoose.model('Recruiter', recruiterSchema)
+module.exports = mongoose.model("Recruiter", recruiterSchema);
