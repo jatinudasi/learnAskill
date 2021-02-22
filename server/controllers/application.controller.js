@@ -7,5 +7,7 @@ exports.Apply = async (req, res, next) => {
 	try {
 		if (!mongoose.Types.ObjectId.isValid(req.params.jobId)) throw new APIError(`Invalid jobId`, httpStatus.BAD_REQUEST);
         
+	}catch{
+		
 	}
 };

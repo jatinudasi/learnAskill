@@ -45,24 +45,10 @@ const applicationSchema = new Schema(
 		cover_letter: {
 			type: String,
 		},
-		source: {
-			type: String,
-			required: true,
-		},
-		diversity: {
-			type: String,
-			required: true,
-		},
-		sponsorship: {
-			type: String,
-			required: true,
-		},
-		disability: {
-			type: String,
-			required: true,
-		},
 	},
 	{
 		timestamps: true,
 	}
 );
+
+module.exports = mongoose.model("Application", applicationSchema);

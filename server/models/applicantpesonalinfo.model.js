@@ -37,9 +37,5 @@ const applicantpersonalschema = new Schema({
 	},
 });
 
-<<<<<<< HEAD
-module.exports = mongoose.model("Applicantpersonal", applicantpersonalschema);
-=======
 module.exports = mongoose.model('ApplicantP', applicantpersonalschema);
 
->>>>>>> a1b6fe2daa04d614d599128ca193cb3a248d5175
