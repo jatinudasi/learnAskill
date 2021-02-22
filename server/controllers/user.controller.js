@@ -1,10 +1,9 @@
 const validator = require("validator");
 const User = require("./../models/user.models");
-const { signaccesstoken } = require("./../helpers/jwt.helpers");
+const {signaccesstoken } = require("./../helpers/jwt.helpers");
 
 const httpStatus = require("http-status");
 const mongoose = require("mongoose");
-const APIError = require("../utils/APIError");
 const Recruiter = require("../models/recruiter.models");
 const Applicant = require("../models/applicant.model");
 

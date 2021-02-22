@@ -31,11 +31,11 @@ app.use(function (err, req, res, next) {
 		res.send(err.message);
 	} else {
 		err.message = "internal server error";
-		res.send(err.message);
+		res.status(500).send(err.message);
 	}
 });
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
 	console.log(`http://localhost:${PORT}`);
 });

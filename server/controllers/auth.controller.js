@@ -29,7 +29,7 @@ exports.recruitersignup = async (req, res, next) => {
 	}
 };
 
-exports.recruiterlogin = async (req, res, next) => {
+exports.recruitersignin = async (req, res, next) => {
 	try {
 		let { email, password } = req.body;
 		if (!email || !password) throw new Error("please enter emailid and password");
@@ -43,7 +43,52 @@ exports.recruiterlogin = async (req, res, next) => {
 		let result = await userexist.isvalid(password);
 		if (!result) throw new Error("enter valid email password");
 
-		const token = await signaccesstoken(userexist.id, userexist.email, saveduser.mobile);
+		const token = await signaccesstoken(userexist.id, userexist.email, userexist.mobile);
+
+		res.status(200).send({ success: token });
+	} catch (error) {
+		next(error);
+	}
+};
+
+exports.applicantsignup = async (req, res, next) => {
+	try {
+		let { email, password, mobile } = req.body;
+
+		if (!email || !password || !mobile) throw new Error("please enter emailid and password");
+		if (!validator.isEmail(email) || !validator.isMobilePhone(mobile, "en-IN")) throw new Error("enter a valid email and valid phone number");
+
+		let duplicateemail = await Applicant.findOne({ email: email });
+		let phonenumber = await Applicant.findOne({ mobile: mobile });
+
+		if (duplicateemail || phonenumber) throw new Error("please enter unique email and phone number");
+
+		let recruiter = await new Applicant({ email, password, mobile });
+		 await recruiter.save();
+		const token = await signaccesstoken(recruiter.id,recruiter.email,recruiter.mobile);
+		
+		res.status(201).send({ token: token, saveduser:recruiter });
+	} catch (error) {
+		next(error);
+	}
+};
+
+
+exports.applicantsignin = async (req, res, next) => {
+	try {
+		let { email, password } = req.body;
+		if (!email || !password) throw new Error("please enter emailid and password");
+
+		let usersearchbyemail = await Recruiter.findOne({ email: email });
+		let usersearchbymobile = await Recruiter.findOne({ mobile: email });
+		//user can login by both email and phone number
+		if (!usersearchbyemail && !usersearchbymobile) throw new Error("enter valid email password");
+
+		let userexist = usersearchbyemail || usersearchbymobile;
+		let result = await userexist.isvalid(password);
+		if (!result) throw new Error("enter valid email password");
+
+		const token = await signaccesstoken(userexist.id, userexist.email, userexist.mobile);
 
 		res.status(200).send({ success: token });
 	} catch (error) {

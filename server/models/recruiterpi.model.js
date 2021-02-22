@@ -34,5 +34,5 @@ const recruterpersonalschema = new Schema({
   }
 });
 
-module.exports = mongoose.model('Recruterpersonalinfo', recruterpersonalschema);
+module.exports = mongoose.model('RecruiterP', recruterpersonalschema);
 

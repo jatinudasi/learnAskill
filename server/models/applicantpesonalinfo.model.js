@@ -40,5 +40,5 @@ const applicantpersonalschema = new Schema({
   }
 });
 
-module.exports = mongoose.model('Applicantpersonal', applicantpersonalschema);
+module.exports = mongoose.model('ApplicantP', applicantpersonalschema);
 
