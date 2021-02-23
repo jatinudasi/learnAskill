@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 // const Applicant = require('./applicant.model');
-const education = require("./education.model");
+const Education = require("./education.model");
 
 const applicantpersonalschema = new Schema({
 	applicantid: {
@@ -21,7 +21,7 @@ const applicantpersonalschema = new Schema({
 		required: true,
 	},
 	education: {
-		type: [education],
+		type: [Education],
 	},
 	skills: {
 		type: [String],
@@ -37,9 +37,5 @@ const applicantpersonalschema = new Schema({
 	},
 });
 
-<<<<<<< HEAD
-module.exports = mongoose.model("Applicantpersonal", applicantpersonalschema);
-=======
 module.exports = mongoose.model('ApplicantP', applicantpersonalschema);
 
->>>>>>> a1b6fe2daa04d614d599128ca193cb3a248d5175

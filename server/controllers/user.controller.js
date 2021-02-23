@@ -11,8 +11,8 @@ exports.getAll = async (req, res, next) => {
 	try {
 		// console.log('\n\n\n', req.user.role, '\n\n\n')
 		const response = { payLoad: {} };
-		const recruiter = await Recruiter.find().exec();
-		const applicant = await Applicant.find().exec();
+		const recruiter = await Recruiter.find();
+		const applicant = await Applicant.find();
 		response.payLoad = { applicant, recruiter };
 		res.status(httpStatus.OK);
 		res.send(response); 

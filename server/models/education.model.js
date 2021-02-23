@@ -24,8 +24,9 @@ const educationSchema = new Schema({
 		required: true,
 	},
 	date: {
-		type: date.schema,
+		type:Date,
 		required: true,
+		default:Date.now
 	},
 });
 
