@@ -16,6 +16,10 @@ const jobSchema = new Schema(
 			type: String,
 			required: true,
 		},
+		city: {
+			type: String,
+			required: true,
+		},
 		description: {
 			type: String,
 			required: true,
@@ -45,3 +49,5 @@ const jobSchema = new Schema(
 		timestamps: true,
 	}
 );
+
+module.exports = mongoose.model("Job", jobSchema);

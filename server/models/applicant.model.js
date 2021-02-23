@@ -1,11 +1,6 @@
-<<<<<<< HEAD
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
-=======
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const bcrypt = require("bcryptjs");
->>>>>>> a1b6fe2daa04d614d599128ca193cb3a248d5175
 
 const applicantSchema = new Schema(
 	{

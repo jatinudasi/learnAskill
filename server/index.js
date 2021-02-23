@@ -28,7 +28,7 @@ app.use("*", (req, res) => {
 app.use(function (err, req, res, next) {
 	console.log(err);
 	if (err.message) {
-		res.send(err.message);
+		res.status(400).send(err.message);
 	} else {
 		err.message = "internal server error";
 		res.status(500).send(err.message);

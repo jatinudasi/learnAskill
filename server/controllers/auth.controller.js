@@ -2,7 +2,6 @@
 const Recruiter = require("../models/recruiter.models");
 const Applicant = require("../models/applicant.model");
 const jwt = require("jsonwebtoken");
-const httpStatus = require("http-status");
 
 const validator = require("validator");
 const {signaccesstoken} = require("./../helpers/jwt.helpers")
@@ -77,12 +76,15 @@ exports.applicantsignup = async (req, res, next) => {
 exports.applicantsignin = async (req, res, next) => {
 	try {
 		let { email, password } = req.body;
+		console.log(req.body)
 		if (!email || !password) throw new Error("please enter emailid and password");
 
-		let usersearchbyemail = await Recruiter.findOne({ email: email });
-		let usersearchbymobile = await Recruiter.findOne({ mobile: email });
+		let usersearchbyemail = await Applicant.findOne({ email: email });
+		let usersearchbymobile = await Applicant.findOne({ mobile: email });
+		console.log(usersearchbymobile)
+		console.log(usersearchbyemail)
 		//user can login by both email and phone number
-		if (!usersearchbyemail && !usersearchbymobile) throw new Error("enter valid email password");
+		if (!usersearchbyemail && !usersearchbymobile) throw new Error("user not found");
 
 		let userexist = usersearchbyemail || usersearchbymobile;
 		let result = await userexist.isvalid(password);
@@ -90,7 +92,7 @@ exports.applicantsignin = async (req, res, next) => {
 
 		const token = await signaccesstoken(userexist.id, userexist.email, userexist.mobile);
 
-		res.status(200).send({ success: token });
+		res.status(200).json({ token: token ,user:userexist});
 	} catch (error) {
 		next(error);
 	}

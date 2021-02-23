@@ -44,9 +44,11 @@ const applicationSchema = new Schema(
 		},
 		cover_letter: {
 			type: String,
-		}
+		},
 	},
 	{
 		timestamps: true,
 	}
 );
+
+module.exports = mongoose.model("Application", applicationSchema);
