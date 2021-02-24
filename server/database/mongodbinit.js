@@ -9,6 +9,11 @@ mongoose.connect(CONNECTION_URL, {
 	useCreateIndex: true,
 });
 
+process.on("SIGINT", async () => {
+	await mongoose.connection.close();
+	process.exit(0);
+});
+
 mongoose.connection.on("connected", () => {
 	console.log("Mongo has connected succesfully");
 });
