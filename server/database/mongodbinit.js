@@ -1,12 +1,17 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-const CONNECTION_URL = process.env.MONGODB_URI_local;
+const CONNECTION_URL = process.env.MONGODB_URI;
 
 mongoose.connect(CONNECTION_URL, {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
 	useCreateIndex: true,
+});
+
+process.on("SIGINT", async () => {
+	await mongoose.connection.close();
+	process.exit(0);
 });
 
 mongoose.connection.on("connected", () => {

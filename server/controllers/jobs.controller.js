@@ -3,9 +3,7 @@ const Job = require("../models/job.model");
 
 exports.post = async (req, res, next) => {
 	try {
-		//console.log("---------------------------------------------------------------");
 		//console.log(req.body);
-		//console.log("---------------------------------------------------------------");
 		//console.log(req.payload.id);
 		req.body.recruiter = req.payload.id;
 		const job = new Job(req.body);
@@ -76,7 +74,6 @@ exports.putOne = async (req, res, next) => {
 		next(err);
 	}
 };
-
 
 exports.deleteOne = async (req, res, next) => {
 	try {
