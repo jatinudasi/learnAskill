@@ -5,12 +5,20 @@ const {upload} =require('./../helpers/multer');
 const {configcloud,uploadtocloud} = require('./../helpers/cloudinary');
 const Class = require("./../models/class.model")
 
-app.get('/',(req,res,next) => {
-    res.send("inside class having fun");
+app.get('/',async(req,res,next) => {
+    try {
+        const allclasses = await Class.find();
+        res.status(200).send({classes: allclasses});
+    } catch (error) {
+        next(error);
+    }
+    
 })
 app.post('/',verifyaccesstoken,upload.single('image'),configcloud,async(req,res,next)=>{
     try {
         const{classname,category,address,city,fees,duration,vacancy} = req.body;
+        console.log(req.payload);
+        req.body.classowner = req.payload.id;
         console.log(req.body);
         if(!classname||!category||!address||!city||!fees||!duration||!vacancy)
         throw new Error("enter all the details");
