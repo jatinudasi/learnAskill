@@ -4,8 +4,8 @@ const {verifyaccesstoken} = require("./../helpers/jwt.helpers")
 const {upload} =require('./../helpers/multer'); 
 const {configcloud,uploadtocloud} = require('./../helpers/cloudinary');
 const Class = require("./../models/class.model")
-
-app.get('/',async(req,res,next) => {
+//all the classes 
+app.get('/all',verifyaccesstoken,async(req,res,next) => {
     try {
         const allclasses = await Class.find();
         res.status(200).send({classes: allclasses});
@@ -13,7 +13,43 @@ app.get('/',async(req,res,next) => {
         next(error);
     }
     
+});
+//get all programming class
+app.get('/category/:name',verifyaccesstoken,async(req,res,next)=>{
+        try {
+            const getbyactivity = await Class.find({activites:req.params.name});
+            res.status(200).send(getbyactivity);
+        }catch (error) {
+            next(error);
+        }
+
 })
+//getting a specific class  
+app.get('/:id',verifyaccesstoken,async(req,res,next)=>{
+try {
+    const specificclass = await Class.findById(req.params.id);
+    if(!specificclass) res.status(400).send("enter valid id");
+     
+    //res.status(200).send({class:specificclass,subscribed:});
+
+    
+} catch (error) {
+    next(error);
+}
+
+});
+//getting all the class that the recruiter has made
+app.get('/my',verifyaccesstoken,async(req,res,next)=>{
+    try {
+        const myclasses = await Class.find({classowner:req.payload.id});
+        res.status(200).send({my:myclasses});
+        
+    } catch (error) {
+        next(error)
+    }
+});
+
+// creating a class
 app.post('/',verifyaccesstoken,upload.single('image'),configcloud,async(req,res,next)=>{
     try {
         const{classname,category,address,city,fees,duration,vacancy} = req.body;
@@ -43,7 +79,7 @@ app.post('/',verifyaccesstoken,upload.single('image'),configcloud,async(req,res,
         
 });
 
-
+//deleting a class by id
 app.delete('/:id',verifyaccesstoken,async(req,res,next)=>{
 
     try {
